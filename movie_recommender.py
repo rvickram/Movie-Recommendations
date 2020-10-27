@@ -44,8 +44,14 @@ def getSimilarMovie(data, movie_title, cosine_simulation):
 
 	# sort to find the most relevant (in descending order)
 	sorted_similar_movies = sorted(similar_movies, key=lambda x : x[1], reverse=True)
+	top50_sorted = sorted_similar_movies[:50]
 
-	return sorted_similar_movies
+	# get a titles from the indexes in tuples
+	recommendations = []
+	for movie in top50_sorted:
+		recommendations.append(get_title_from_index(data, movie[0]))
+	
+	return recommendations
 
 ## Test the movie
 top50 = getSimilarMovie(df, 'Avatar', cosine_sim)
