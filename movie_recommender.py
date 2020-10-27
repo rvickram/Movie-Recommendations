@@ -17,8 +17,13 @@ print(df.head())
 
 ## Select features
 features = ['keywords', 'cast', 'genres', 'director']
-# combined the features into a single string
+# clean out NaN values in features
+for feature in features:
+	df[feature] = df[feature].fillna('')
+
+## Combine the features into a single string
 def combine_features(row):
 	return row['keywords']+" "+row['cast']+" "+row['genres']+" "+row['director']
+
 df['combined_features'] = df.apply(combine_features, axis=1) # axis=1 means pass rows not columns
 print(df['combined_features'].head())
