@@ -31,3 +31,6 @@ print(df['combined_features'].head())
 ## Create count matrix from this new combined column
 cv = CountVectorizer()
 count_matrix = cv.fit_transform(df['combined_features'])
+
+## Compute the Cosine Similarity based on the count_matrix
+cosin_sim = cosine_similarity(count_matrix)
