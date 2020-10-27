@@ -48,10 +48,18 @@ def getSimilarMovie(data, movie_title, cosine_simulation):
 
 	# get a titles from the indexes in tuples
 	recommendations = []
+	scores = []
 	for movie in top50_sorted:
 		recommendations.append(get_title_from_index(data, movie[0]))
+		scores.append(movie[1])
+	# remove the first score (since it will be the movie recommendations are based on)
+	del recommendations[0]
+	del scores [0]
 	
-	return recommendations
+	return recommendations, [element * 100 for element in scores]
 
 ## Test the movie
-top50 = getSimilarMovie(df, 'Avatar', cosine_sim)
+top50, scores = getSimilarMovie(df, 'Avatar', cosine_sim)
+
+print('Top 50:\n', top50)
+print('\nScores:\n', scores)
