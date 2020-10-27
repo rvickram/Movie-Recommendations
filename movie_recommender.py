@@ -33,4 +33,19 @@ cv = CountVectorizer()
 count_matrix = cv.fit_transform(df['combined_features'])
 
 ## Compute the Cosine Similarity based on the count_matrix
-cosin_sim = cosine_similarity(count_matrix)
+cosine_sim = cosine_similarity(count_matrix)
+
+## function to retrieve a list of similar movies
+def getSimilarMovie(data, movie_title, cosine_simulation):
+	movie_index = get_index_from_title(data, movie_title)
+
+	# get list of tuples
+	similar_movies = list(enumerate(cosine_simulation[movie_index]))
+
+	# sort to find the most relevant (in descending order)
+	sorted_similar_movies = sorted(similar_movies, key=lambda x : x[1], reverse=True)
+
+	return sorted_similar_movies
+
+## Test the movie
+top50 = getSimilarMovie(df, 'Avatar', cosine_sim)
