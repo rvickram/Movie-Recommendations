@@ -40,11 +40,30 @@ def scrapeMoviePage(url):
     keywords = page.select('.itemprop')
     keywordsParsed = []
     for keyword in keywords:
-        keywordsParsed.append(keyword.getText())
+        keywordsParsed.append(keyword.getText().strip())
+
+    # get genre
+    genre = page.select('.see-more.inline.canwrap')[1].select_one('a').getText()
+
+    # get creators
+    creators = page.select('.credit_summary_item')[0].select('a')
+    creatorsParsed = []
+    for creator in creators:
+        creatorsParsed.append(creator.getText().replace(' ', ',').strip())
+
+    # get stars
+    stars = page.select('.credit_summary_item')[1].select('a')
+    starsParsed = []
+    for star in stars:
+        starsParsed.append(star.getText().replace(' ', ',').strip())
+    del starsParsed[len(starsParsed) - 1] # remove the 'see full cast link'
 
     data = {
-        'title' : title,
-        'keywords' : keywordsParsed
+        'title' : title.strip(),
+        'keywords' : ' '.join(keywordsParsed),
+        'genre' : genre.strip(),
+        'creators' : ' '.join(creatorsParsed),
+        'stars' : ' '.join(starsParsed)
     }
     return data
 
