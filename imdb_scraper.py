@@ -60,7 +60,18 @@ def scrapeMoviePage(url):
     # get rating
     rating = page.find('span', itemprop='ratingValue').getText().strip()
 
-    #TODO get language, release date (will have to reset search)
+    # get details
+    detailsDiv = page.select_one('.article#titleDetails').select('div')
+    country = detailsDiv[1].select_one('a').getText().strip()
+    language = detailsDiv[2].select_one('a').getText().strip()
+    releaseYear = detailsDiv[3].getText().split()[4]
+    productionCos = detailsDiv[6].select('a')
+    # parse production companies
+    productionCosParsed = []
+    for company in productionCos:
+        companyText = company.getText().strip()
+        if companyText != 'See more':
+            productionCosParsed.append(companyText.replace(' ', ','))
 
     ## build the dictonary to return
     data = {
@@ -69,12 +80,16 @@ def scrapeMoviePage(url):
         'genre' : genre,
         'creators' : ' '.join(creatorsParsed),
         'stars' : ' '.join(starsParsed),
-        'rating' : rating
+        'rating' : rating,
+        'country_of_origin' : country,
+        'language' : language,
+        'release' : releaseYear,
+        'production_company' : ' '.join(productionCosParsed)
     }
     return data
 
 # get the first page
-soup = getPage('https://www.imdb.com/search/title/?title_type=tv_series,tv_miniseries,documentary,tv_short&languages=en&ref_=adv_prv')
+soup = getPage('https://www.imdb.com/search/title/?title_type=tv_series,tv_special,tv_miniseries,documentary,tv_short')
 # get the toal number of results (so we know how many pages to crawl)
 numResults = getNumResults(soup)
 print('Total results: ', numResults)
