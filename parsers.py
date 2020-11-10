@@ -21,13 +21,34 @@ def scrapeKeywords(page):
 def scrapeGenre(page):
     return page.select('.see-more.inline.canwrap')[1].select_one('a').getText().strip()
 
+def scrapeKeywordsGenre(page):
+    keywordsParsed = []
+    genre = ''
+
+    storylineDiv = page.select('.see-more.inline.canwrap')
+    for div in storylineDiv:
+        header = div.select_one('h4')
+        if (header == None):
+            continue
+        else:
+            header = header.getText().strip()
+
+        if (header == 'Plot Keywords:'):
+            keywords = div.select('.itemprop')
+            for keyword in keywords:
+                keywordsParsed.append(keyword.getText().strip())
+        elif (header == 'Genres:'):
+            genre = div.select_one('a').getText().strip()
+
+    return keywordsParsed, genre
+
 def scrapeCreatorsStars(page):
     creatorStars = page.select('.credit_summary_item')
     creatorsParsed = []
     starsParsed = []
     for item in creatorStars:
         header = item.select_one('h4').getText().strip()
-        if(header == 'Creators:'):
+        if(header == 'Creators:' or header == 'Director'):
             # get creators
             creators = item.select('a')
             for creator in creators:

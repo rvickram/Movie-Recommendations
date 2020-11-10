@@ -46,11 +46,8 @@ def scrapeMoviePage(url):
     # scrape the title
     title = scrapeTitle(page)
 
-    # get keywords
-    keywordsParsed = scrapeKeywords(page)
-
-    # get genre
-    genre = scrapeGenre(page)
+    # get keywords and genre
+    keywordsParsed, genre = scrapeKeywordsGenre(page)
 
     # check for both creators and stars
     creatorsParsed, starsParsed = scrapeCreatorsStars(page)
