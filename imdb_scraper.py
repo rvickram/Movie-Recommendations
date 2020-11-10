@@ -15,11 +15,42 @@ def getNumResults(soupPage):
     splitString = description.split()
     return splitString[2].replace(',', '')
 
+# This function gets all the movies on a page
+def getMovieUrlList(soupPage):
+    divList = soupPage.select('.lister-list .mode-advanced')
+    urls = []
+    for div in divList:        
+        # titleLink = div.find_all('a', href=True)[0]['href']
+        titleLink = div.select_one('.lister-item-header').select_one('a')['href']
+        urls.append('https://www.imdb.com' + titleLink)
+    return urls
+
+# This will scrape an IMDB tv show page for information and return a dictionary
+def scrapeMoviePage(url):
+    # fetch the live page
+    page = getPage(url)
+
+    # scrape the title
+    title = page.select_one('.title_wrapper') \
+        .select_one('h1').getText()
+    # clean the title
+    title = title.split('\xa0', 2)[0]
+
+    data = {
+        'title' : title
+    }
+    return data
 
 # get the first page
 soup = getPage('https://www.imdb.com/search/title/?title_type=tv_series,tv_miniseries,documentary,tv_short&languages=en&ref_=adv_prv')
 # get the toal number of results (so we know how many pages to crawl)
 numResults = getNumResults(soup)
+print('Total results: ', numResults)
 
+# get urls for first movie
+urlList = getMovieUrlList(soup)
 
-print(numResults)
+# get dictionary for each movie
+for url in urlList:
+    data = scrapeMoviePage(url)
+    print(data)
