@@ -33,7 +33,6 @@ def scrapeMoviePage(url):
     # scrape the title
     title = page.select_one('.title_wrapper') \
         .select_one('h1').getText()
-    # clean the title
     title = title.split('\xa0', 2)[0].strip()
 
     # get keywords
@@ -58,12 +57,19 @@ def scrapeMoviePage(url):
         starsParsed.append(star.getText().replace(' ', ',').strip())
     del starsParsed[len(starsParsed) - 1] # remove the 'see full cast link'
 
+    # get rating
+    rating = page.find('span', itemprop='ratingValue').getText().strip()
+
+    #TODO get language, release date (will have to reset search)
+
+    ## build the dictonary to return
     data = {
         'title' : title,
         'keywords' : ' '.join(keywordsParsed),
         'genre' : genre,
         'creators' : ' '.join(creatorsParsed),
-        'stars' : ' '.join(starsParsed)
+        'stars' : ' '.join(starsParsed),
+        'rating' : rating
     }
     return data
 
