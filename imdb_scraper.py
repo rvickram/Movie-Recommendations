@@ -36,8 +36,15 @@ def scrapeMoviePage(url):
     # clean the title
     title = title.split('\xa0', 2)[0]
 
+    # get keywords
+    keywords = page.select('.itemprop')
+    keywordsParsed = []
+    for keyword in keywords:
+        keywordsParsed.append(keyword.getText())
+
     data = {
-        'title' : title
+        'title' : title,
+        'keywords' : keywordsParsed
     }
     return data
 
@@ -52,5 +59,5 @@ urlList = getMovieUrlList(soup)
 
 # get dictionary for each movie
 for url in urlList:
-    data = scrapeMoviePage(url)
-    print(data)
+    movieData = scrapeMoviePage(url)
+    print(movieData)
