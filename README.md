@@ -19,3 +19,4 @@ The underlying model uses the following features (each weighted differently):
 
 ## Web Scraper
 The web scraper uses the BeautifulSoup python library. It parses data to a CSV file, which is then used by the machine learning process.
+To optimize runtime, parallelization has been used.
