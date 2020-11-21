@@ -4,6 +4,8 @@
 import requests
 import csv
 from bs4 import BeautifulSoup
+import multiprocessing as mp
+
 from parsers import *
 
 # This function gets a BeautifulSoup object from a given url
@@ -32,11 +34,19 @@ def writeData(searchPageSoup, writer):
     # get urls for first movie
     urlList = getMovieUrlList(searchPageSoup)
 
-    # get dictionary for each movie
-    for url in urlList:
-        movieData = scrapeMoviePage(url)
-        for data in movieData:
-            writer.writerow(data)
+    pool = mp.Pool(mp.cpu_count())
+    movieData = {}
+
+    movieData = pool.map_async(threadFcn, [(url) for url in urlList]).get()
+    pool.close()
+
+    for data in movieData:
+        writer.writerow(data)
+    return
+
+def threadFcn(url):
+    movieData = scrapeMoviePage(url)
+    return movieData
 
 # This will scrape an IMDB tv show page for information and return a dictionary
 def scrapeMoviePage(url):
@@ -62,7 +72,7 @@ def scrapeMoviePage(url):
         print('Error: ' + title + ' URL: ' + url)
 
     ## build the dictonary to return
-    data = [{
+    data = {
         'title' : title,
         'keywords' : ' '.join(keywordsParsed),
         'genre' : genre,
@@ -73,46 +83,46 @@ def scrapeMoviePage(url):
         'language' : language,
         'release' : releaseYear,
         'production_company' : ' '.join(productionCosParsed)
-    }]
+    }
     return data
 
 
 ## DRIVER CODE
+if __name__ == '__main__':
+    # headers
+    csv_cols = ['title', 'keywords', 'genre', 'creators', 'stars', 'rating',\
+        'country_of_origin', 'language', 'release', 'production_company']
 
-# headers
-csv_cols = ['title', 'keywords', 'genre', 'creators', 'stars', 'rating',\
-    'country_of_origin', 'language', 'release', 'production_company']
+    csv_file = "./data/scraped_data.csv"
+    try:
+        print('Opening file for writing...')
+        with open(csv_file, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=csv_cols)
+            writer.writeheader()
+            print('Wrote header to file.')
 
-csv_file = "./data/scraped_data.csv"
-try:
-    print('Opening file for writing...')
-    with open(csv_file, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=csv_cols)
-        writer.writeheader()
-        print('Wrote header to file.')
+            # get the first page
+            searchUrl = 'https://www.imdb.com/search/title/?title_type=tv_series,tv_special,tv_miniseries,documentary&release_date=,2020-12-31&languages=en,de,es'
+            soup = getPage(searchUrl)
+            # get the toal number of results (so we know how many pages to crawl)
+            numResults = getNumResults(soup)
+            print('Total results: ', numResults)
 
-        # get the first page
-        searchUrl = 'https://www.imdb.com/search/title/?title_type=tv_series,tv_special,tv_miniseries,documentary&release_date=,2020-12-31&languages=en,de,es'
-        soup = getPage(searchUrl)
-        # get the toal number of results (so we know how many pages to crawl)
-        numResults = getNumResults(soup)
-        print('Total results: ', numResults)
-
-        print('Processing page 1')
-        writeData(soup, writer)
-
-        currentSearchPage = 51
-        numRuns = int(numResults) // 50
-        if int(numResults) % 50 == 0:
-            numRuns -= 1
-        
-        for i in range(numRuns):
-            print('Processing page ' + str(i + 2))
-            url = searchUrl + '&start=' + str(currentSearchPage)
-            currentSearchPage += 50
-
-            soup = getPage(url)
+            print('Processing page 1')
             writeData(soup, writer)
 
-except IOError:
-    print("I/O error")
+            currentSearchPage = 51
+            numRuns = int(numResults) // 50
+            if int(numResults) % 50 == 0:
+                numRuns -= 1
+            
+            for i in range(numRuns):
+                print('Processing page ' + str(i + 2))
+                url = searchUrl + '&start=' + str(currentSearchPage)
+                currentSearchPage += 50
+
+                soup = getPage(url)
+                writeData(soup, writer)
+
+    except IOError:
+        print("I/O error")

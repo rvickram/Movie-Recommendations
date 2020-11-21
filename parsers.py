@@ -79,25 +79,28 @@ def scrapeDetails(page):
         productionCosParsed = []
 
         for div in detailsDiv:
-            header = div.select_one('h4')
-            if (header == None): 
-                continue
-            else:
-                header = header.getText().strip()
+            try:
+                header = div.select_one('h4')
+                if (header == None): 
+                    continue
+                else:
+                    header = header.getText().strip()
 
-            if (header == 'Country:'):
-                country = div.select_one('a').getText().strip()
-            elif (header == 'Language:'):
-                language = div.select_one('a').getText().strip()
-            elif (header == 'Release Date:'):
-                releaseYear = div.getText().split()[4]
-            elif (header == 'Production Co:'):
-                productionCos = div.select('a')
-                # parse production companies
-                productionCosParsed = []
-                for company in productionCos:
-                    companyText = company.getText().strip()
-                    if companyText != 'See more':
-                        productionCosParsed.append(companyText.replace(' ', ','))
+                if (header == 'Country:'):
+                    country = div.select_one('a').getText().strip()
+                elif (header == 'Language:'):
+                    language = div.select_one('a').getText().strip()
+                elif (header == 'Release Date:'):
+                    releaseYear = div.getText().split()[4]
+                elif (header == 'Production Co:'):
+                    productionCos = div.select('a')
+                    # parse production companies
+                    productionCosParsed = []
+                    for company in productionCos:
+                        companyText = company.getText().strip()
+                        if companyText != 'See more':
+                            productionCosParsed.append(companyText.replace(' ', ','))
+            except:
+                print('Could not fetch ', header)
 
         return country, language, releaseYear, productionCosParsed
