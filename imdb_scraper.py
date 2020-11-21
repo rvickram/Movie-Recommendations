@@ -56,7 +56,10 @@ def scrapeMoviePage(url):
     rating = scrapeRating(page)
 
     # get details
-    country, language, releaseYear, productionCosParsed = scrapeDetails(page)
+    try:
+        country, language, releaseYear, productionCosParsed = scrapeDetails(page)
+    except:
+        print('Error: ' + title + ' URL: ' + url)
 
     ## build the dictonary to return
     data = [{
@@ -80,7 +83,7 @@ def scrapeMoviePage(url):
 csv_cols = ['title', 'keywords', 'genre', 'creators', 'stars', 'rating',\
     'country_of_origin', 'language', 'release', 'production_company']
 
-csv_file = "scraped_data.csv"
+csv_file = "./data/scraped_data.csv"
 try:
     print('Opening file for writing...')
     with open(csv_file, 'w', newline='') as csvfile:
@@ -89,7 +92,7 @@ try:
         print('Wrote header to file.')
 
         # get the first page
-        searchUrl = 'https://www.imdb.com/search/title/?title_type=tv_series,tv_special,tv_miniseries,documentary,tv_short'
+        searchUrl = 'https://www.imdb.com/search/title/?title_type=tv_series,tv_special,tv_miniseries,documentary&languages=en,de,es'
         soup = getPage(searchUrl)
         # get the toal number of results (so we know how many pages to crawl)
         numResults = getNumResults(soup)
