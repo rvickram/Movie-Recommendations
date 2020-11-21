@@ -92,7 +92,7 @@ try:
         print('Wrote header to file.')
 
         # get the first page
-        searchUrl = 'https://www.imdb.com/search/title/?title_type=tv_series,tv_special,tv_miniseries,documentary&languages=en,de,es'
+        searchUrl = 'https://www.imdb.com/search/title/?title_type=tv_series,tv_special,tv_miniseries,documentary&release_date=,2020-12-31&languages=en,de,es'
         soup = getPage(searchUrl)
         # get the toal number of results (so we know how many pages to crawl)
         numResults = getNumResults(soup)
